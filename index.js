@@ -1,8 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 const authRouter = require("./routers/authRouter");
-const { pool } = require("./db");
-var session = require("express-session");
+const session = require("express-session");
+const Redis = require("ioredis");
+const redisClient = new Redis();
+const RedisStore = require("connect-redis").default;
+
 require("dotenv").config();
 
 const app = express();
@@ -10,21 +13,28 @@ const app = express();
 app.use(express.json()); // из за этой строки я убил все нервные клетки
 app.use(
   cors({
-    origin: process.env.FRONTEND_ORIGIN,
-    methods: ["GET", "POST"],
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );
-// app.set("trust proxy", 1); // trust first proxy
 app.use(
   session({
     secret: process.env.COOKIE_SECRET,
+    credentials: true,
+    name: "sid",
+    store: new RedisStore({ client: redisClient }),
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: true },
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.ENVIRONMENT === "production" ? "true" : "auto",
+      httpOnly: true,
+      expires: 1000 * 60 * 60 * 24,
+      sameSite: process.env.ENVIRONMENT === "production" ? "none" : "lax",
+    },
   })
 );
 
+// auth
 app.use("/auth", authRouter);
 
 app.listen(process.env.PORT, () => {

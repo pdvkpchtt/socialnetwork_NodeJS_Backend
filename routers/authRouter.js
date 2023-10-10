@@ -23,25 +23,34 @@ router.route("/register").post(async (req, res) => {
   }
 });
 
-router.route("/login").post(async (req, res) => {
-  const potentialLogin = await pool.query(
-    "SELECT id, name, password FROM users u WHERE u.name=$1",
-    [req.body.username]
-  );
+router
+  .route("/login")
+  .get(async (req, res) => {
+    console.log(req.session.user);
+    if (req.session.user && req.session.user.id) {
+      res.json({ loggedIn: true, userId: req.session.user.id });
+    } else {
+      res.json({ loggedIn: false });
+    }
+  })
+  .post(async (req, res) => {
+    const potentialLogin = await pool.query(
+      "SELECT id, name, password FROM users u WHERE u.name=$1",
+      [req.body.username]
+    );
 
-  if (potentialLogin.rowCount > 0) {
-    if (req.body.password === potentialLogin.rows[0].password) {
-      req.session.user = {
-        id: potentialLogin.rows[0].id,
-      };
-      res.json({ loggedIn: true, username: req.body.username });
+    if (potentialLogin.rowCount > 0) {
+      if (req.body.password === potentialLogin.rows[0].password) {
+        req.session.user = {
+          id: potentialLogin.rows[0].id,
+        };
+        res.json({ loggedIn: true, userId: req.session.user.id });
+      } else {
+        res.json({ loggedIn: false, status: "Неравильное имя или пароль" });
+      }
     } else {
       res.json({ loggedIn: false, status: "Неравильное имя или пароль" });
     }
-  } else {
-    console.log("not good");
-    res.json({ loggedIn: false, status: "Неравильное имя или пароль" });
-  }
-});
+  });
 
 module.exports = router;
