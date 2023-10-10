@@ -56,4 +56,10 @@ router
     }
   });
 
+router.route("/logout").get(async (req, res) => {
+  res.clearCookie("sid");
+  req.session.destroy();
+  console.log("session: " + req.session);
+});
+
 module.exports = router;
