@@ -21,4 +21,13 @@ router.route("/getcategories").post(async (req, res) => {
   res.json({ data: categories.rows });
 });
 
+router.route("/getallposts").post(async (req, res) => {
+  const posts = await pool.query(
+    "select posts.*, users.name from posts join users on users.id = posts.user_id ORDER BY posts.id DESC LIMIT 8 OFFSET $1",
+    [req.body.cursor]
+  );
+  console.log(posts.rows);
+  res.send({ data: posts.rows });
+});
+
 module.exports = router;
