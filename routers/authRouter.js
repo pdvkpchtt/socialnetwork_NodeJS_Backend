@@ -17,6 +17,9 @@ router.route("/register").post(async (req, res) => {
       [req.body.username, req.body.password, newUserId]
     );
 
+    req.session.user = {
+      id: newUserId,
+    };
     res.json({ loggedIn: true, id: newUserId });
   } else {
     res.json({ loggedIn: false, status: "Имя занято" });
