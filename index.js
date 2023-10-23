@@ -3,6 +3,7 @@ const cors = require("cors");
 const authRouter = require("./routers/authRouter");
 const profileRouter = require("./routers/profileRouter");
 const feedRouter = require("./routers/feedRouter");
+const searchRouter = require("./routers/searchRouter");
 const session = require("express-session");
 const Redis = require("ioredis");
 const redisClient = new Redis();
@@ -39,6 +40,7 @@ app.use(
 app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
 app.use("/feed", feedRouter);
+app.use("/search", searchRouter);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
