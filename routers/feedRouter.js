@@ -23,6 +23,9 @@ router.route("/deletepost").post(async (req, res) => {
   const posts = await pool.query("delete from posts where posts.id = $1", [
     req.body.postId,
   ]);
+  const reacts = await pool.query("delete from reactions where post_id = $1", [
+    req.body.postId,
+  ]);
 });
 
 router.route("/getreactions").post(async (req, res) => {
