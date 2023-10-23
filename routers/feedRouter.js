@@ -33,19 +33,24 @@ router.route("/getreactions").post(async (req, res) => {
   res.send({ data: posts.rows });
 });
 
-router.route("/deletereaction").post(async (req, res) => {
-  const posts = await pool.query("delet from reactions where user_id = $1", [
-    req.body.userId,
-  ]);
-});
-
 router.route("/createreaction").post(async (req, res) => {
-  console.log(req.body);
-  const reactionId = new Date().valueOf();
-  const posts = await pool.query(
-    "INSERT INTO reactions(id, type, user_id, post_id) values($1,$2,$3,$4)",
-    [reactionId, req.body.type, req.body.userId, req.body.postId]
+  const isreaction = await pool.query(
+    "SELECT * FROM public.reactions where user_id = $2 and type = $1 and post_id = $3",
+    [req.body.type, req.body.userId, req.body.postId]
   );
+
+  if (isreaction.rowCount > 0) {
+    const posts = await pool.query(
+      "delete from reactions where user_id = $1 and post_id = $2 and type = $3",
+      [req.body.userId, req.body.postId, req.body.type]
+    );
+  } else {
+    const reactionId = new Date().valueOf();
+    const posts = await pool.query(
+      "INSERT INTO reactions(id, type, user_id, post_id) values($1,$2,$3,$4)",
+      [reactionId, req.body.type, req.body.userId, req.body.postId]
+    );
+  }
 });
 
 module.exports = router;
