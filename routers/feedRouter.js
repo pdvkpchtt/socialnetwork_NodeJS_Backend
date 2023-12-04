@@ -8,6 +8,12 @@ router.route("/createpost").post(async (req, res) => {
     "INSERT INTO posts(id, title, text, user_id) values($1,$2,$3,$4)",
     [postId, req.body.data.headState, req.body.data.textState, req.body.userId]
   );
+
+  const lastPost = await pool.query(
+    `SELECT * FROM posts ORDER BY id DESC LIMIT 1`
+  );
+  console.log(lastPost.rows);
+  res.send({ data: lastPost.rows });
 });
 
 router.route("/getallposts").post(async (req, res) => {
