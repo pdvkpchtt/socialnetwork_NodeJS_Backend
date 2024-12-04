@@ -20,7 +20,7 @@ router.route("/register").post(async (req, res) => {
     req.session.user = {
       id: newUserId,
     };
-    res.json({ loggedIn: true, id: newUserId });
+    res.json({ loggedIn: true, userId: newUserId });
   } else {
     res.json({ loggedIn: false, status: "Имя занято" });
   }
